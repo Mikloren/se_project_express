@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "name": "se_project_express",
+  "version": "0.1.0",
+  "description": "Backend WTR",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mikloren/se_project_express.git"
+  },
+  "author": "Michael Lorenzo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mikloren/se_project_express/issues"
+  },
+  "homepage": "https://github.com/Mikloren/se_project_express#readme"
+}
