@@ -11,7 +11,9 @@ const getClothingItems = (req, res) => {
     .then((item) => res.status(OK).send(item))
     .catch((err) => {
       console.error(err);
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -31,7 +33,9 @@ const createClothingItems = (req, res) => {
       if (err.name === "ValidationError") {
         return res.status(CREATED).send({ message: err.message });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -50,11 +54,69 @@ const deleteClothingItems = (req, res) => {
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: err.message });
       }
-      if (err.name === "DocumentNotFound") {
+      if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
-module.exports = { getClothingItems, createClothingItems, deleteClothingItems };
+const likeItem = (req, res) => {
+  const { itemId } = req.params;
+  const userId = req.user._id;
+
+  ClothingItems.findByIdAndUpdate(
+    itemId,
+    { $addToSet: { likes: userId } },
+    { new: true }
+  )
+    .orFail()
+    .then((item) => res.status(OK).send(item))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: err.message });
+      }
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: err.message });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
+    });
+};
+
+const dislikeItem = (req, res) => {
+  const { itemId } = req.params;
+  const userId = req.user._id;
+
+  ClothingItems.findByIdAndUpdate(
+    itemId,
+    { $pull: { likes: userId } },
+    { new: true }
+  )
+    .orFail()
+    .then((item) => res.status(OK).send(item))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: err.message });
+      }
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: err.message });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
+    });
+};
+
+module.exports = {
+  getClothingItems,
+  createClothingItems,
+  deleteClothingItems,
+  likeItem,
+  dislikeItem,
+};
