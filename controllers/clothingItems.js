@@ -4,6 +4,7 @@ const {
   OK,
   CREATED,
   BAD_REQUEST,
+  NOT_FOUND,
 } = require("../utils/errors");
 
 const getClothingItems = (req, res) => {
