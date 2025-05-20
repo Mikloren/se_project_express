@@ -102,9 +102,6 @@ const dislikeItem = (req, res) => {
     .then((item) => res.status(OK).send(item))
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: err.message });
-      }
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: err.message });
       }
