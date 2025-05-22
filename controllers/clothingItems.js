@@ -5,6 +5,7 @@ const {
   CREATED,
   BAD_REQUEST,
   NOT_FOUND,
+  FORBIDDEN,
 } = require("../utils/errors");
 
 const getClothingItems = (req, res) => {
@@ -27,6 +28,7 @@ const createClothingItems = (req, res) => {
     weather,
     imageUrl,
     owner,
+    createdAt: Date.now(),
   })
     .then((item) => res.status(CREATED).send(item))
     .catch((err) => {
@@ -46,6 +48,11 @@ const deleteClothingItems = (req, res) => {
   ClothingItems.findById(itemId)
     .orFail()
     .then((item) => {
+      if (String(item.owner) !== req.userId) {
+        return res
+          .status(FORBIDDEN)
+          .send({ message: "You cannot delete this item" });
+      }
       return item
         .deleteOne()
         .then(() => res.status(OK).send({ message: "Successfully deleted" }));
@@ -102,6 +109,9 @@ const dislikeItem = (req, res) => {
     .then((item) => res.status(OK).send(item))
     .catch((err) => {
       console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: err.message });
+      }
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: err.message });
       }

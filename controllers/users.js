@@ -1,9 +1,10 @@
-const User = require("../routes/users");
+const User = require("../models/user");
 const {
   INTERNAL_SERVER_ERROR,
   CREATED,
   OK,
   BAD_REQUEST,
+  NOT_FOUND,
 } = require("../utils/errors");
 
 const getUsers = (req, res) => {
@@ -34,17 +35,18 @@ const createUser = (req, res) => {
 };
 
 const getUser = (req, res) => {
-  const { userId } = req.params;
+  const { userId } = req.user;
   User.findById(userId)
-    .oeFail()
+    .orFail()
     .then((user) => res.status(OK).send(user))
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFound") {
+      if (err.name === "DocumentNotFoundError") {
         return res
           .status(NOT_FOUND)
           .send({ message: "Requested resource not found" });
-      } else if (err.name === "CastError") {
+      }
+      if (err.name === "CastError") {
         return res.status(BAD_REQUEST).send({ message: err.message });
       }
       return res
