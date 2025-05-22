@@ -5,7 +5,6 @@ const {
   CREATED,
   BAD_REQUEST,
   NOT_FOUND,
-  FORBIDDEN,
 } = require("../utils/errors");
 
 const getClothingItems = (req, res) => {
@@ -47,16 +46,9 @@ const deleteClothingItems = (req, res) => {
 
   ClothingItems.findById(itemId)
     .orFail()
-    .then((item) => {
-      if (String(item.owner) !== req.userId) {
-        return res
-          .status(FORBIDDEN)
-          .send({ message: "You cannot delete this item" });
-      }
-      return item
-        .deleteOne()
-        .then(() => res.status(OK).send({ message: "Successfully deleted" }));
-    })
+    .then((item) => res.status(OK).send(item))
+    .deleteOne()
+
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
