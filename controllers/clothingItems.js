@@ -5,6 +5,7 @@ const {
   CREATED,
   BAD_REQUEST,
   NOT_FOUND,
+  FORBIDDEN,
 } = require("../utils/errors");
 
 const getClothingItems = (req, res) => {
@@ -47,6 +48,11 @@ const deleteClothingItems = (req, res) => {
   ClothingItems.findById(itemId)
     .orFail()
     .then((item) => {
+      if (String(item.owner) !== req.user._id) {
+        return res
+          .status(FORBIDDEN)
+          .send({ message: "You cannot delete this item" });
+      }
       return item
         .deleteOne()
         .then(() => res.status(OK).send({ message: "Successfully deleted" }));
@@ -59,9 +65,7 @@ const deleteClothingItems = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
